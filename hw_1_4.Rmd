@@ -1,0 +1,149 @@
+---
+title: "hw_1_4"
+output: html_document
+---
+
+1. Создайте функцию, если аргумент датафрейм, то на экране будет выводиться название столбцов и класс данных в столбцах (напр. Variable1 is Numeric)
+
+```{r}
+#решение
+
+isdf_func <- function (x) {
+  if (is.data.frame(x) == TRUE) {
+    df_names <- names(x)
+    cat(paste0('object ', '"', substitute(x), '" is data frame with variables:\n'))
+    for (i in seq_along(x)) {
+      cat('var', i, ': ', paste0(df_names[i], ' is ', data.class(x[ , i]), '\n'))
+    }
+  } else {
+    cat(paste0('"', substitute(x), '" is not data frame'))
+  }
+}
+titanic_df <- as.data.frame(Titanic)
+isdf_func(Titanic)
+isdf_func(titanic_df)
+
+
+```
+
+2. Напишите функцию, симулирующую работу «магического шара предсказаний». Подумайте, как параметризовать эту функцию. Напишите документацию, поясняющую ее использование.
+
+```{r}
+#решение
+
+mb_n <- 0
+
+
+magic_ball <- function(shake = 5, mb_output = c('try later', 'yes', 'no', 'maybe')) {
+  is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
+  if ((is.wholenumber(shake) == FALSE)) stop('number of shakes should be whole')
+  if (shake == 0) stop('number of shakes should be at least 1')
+  if (is.vector(mb_output) == FALSE) stop('possible outputs should be vector')
+  if (length(mb_output) <= 1) warning('vector should at least 2')
+
+  for (i in 1:shake){
+    mb_n <<- mb_n + sample.int(10, 1)
+  }
+  mb_n <<- (mb_n %% length(mb_output)) + 1
+  return(mb_output[mb_n])
+}
+
+magic_ball(shake = 3)
+
+```
+
+Описание
+
+Функция `magic ball (shake = 5, mb_output = c('try later', 'yes', 'no', 'maybe'))` предлагает решение любого вопроса случайным образом.  
+В качестве параметра `shake` необходимо использовать целое число больше нуля, подразумевающее сколько раз шар "встряхивается".
+
+По умолчанию есть 4 варианта ответа: 'try later', 'yes', 'no', 'maybe', но при необходимости вторым параметром `mb_output` пользователь может указывать свой вектор длинной не менее чем 2 с набором вариантов ответа.
+
+
+3. Напишите функцию, считывающую введенное с клавиатуры число и выводящую сообщения, является это число четным или нечетным. Попробуйте подавать на вход функции не числа. Доработайте функцию таким образом, чтобы она корректно завершала работу (без error-а) при передаче неправильного аргумента. Напишите документацию (аналогично предыдущему пункту).
+
+```{r}
+#решение
+
+even_func <- function() {
+
+  err = TRUE
+  is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
+  while (err == TRUE) {
+    simb <- readline("Enter number > ")
+    if (is.na(as.numeric(simb)) == TRUE) {
+      cat("Warning: input should be number. Try again!\n")
+    } else if (is.wholenumber(as.numeric(simb)) == FALSE) {
+      cat("Warning: input should be wholenumber. Try again!\n")
+    } else {err = FALSE}
+    
+  }  
+  simb <- as.numeric(simb)
+  if (simb %% 2 == 0) {
+    cat ('number is even\n')
+    } else {cat ('number is uneven\n')}
+  cat("Successfully executed!\n")   
+
+  
+}
+
+#even_func()   #отключено, так как с данной командой markdown не преобразуется.
+
+```
+
+Описание
+
+Функция `even_func ()` используется для определения, является ли число четным или нечетным.
+У функции нет параметров. Число вводится через консоль.
+
+
+4. Базовая фунция R `summary()` вычисляет описательные статистики для столбцов таблицы - например, `summary(mtcars)`. Эта функция работает также  списками таблиц (попробуйте выполнить `summary(list(iris, mtcars))`), но результат может показаться неожиданным. Напишитсое функцию `summary_list()`, которая выполняет для каждой таблицы в передаваемом в качестве аргумента списке те же вычисления, что и `summary()` для отдельно взятой таблицы.
+
+
+```{r}
+#решение
+summary(list(iris, mtcars))
+
+summary_list <- function(x) {
+    tryCatch(
+    expr = {
+      if (is.data.frame(x) == TRUE) {
+        output <- data.frame()
+        output <- summary(x)
+        return(output)
+        print("Input is data frame.")
+      } else if (is.list(x) == TRUE) {
+        n <- length(x)
+        output <- list()
+        output[[1]] <- summary(as.data.frame(x[1]))
+        for (i in 2:n) {
+          output[[i]] <- summary(as.data.frame(x[i]))
+        }
+        return(output)
+      } else  {
+        print("Input is not a list or a data frame.")
+      }
+    },
+    error = function(e){
+      message('Caught an error!')
+      print(e)
+    },
+    warning = function(w){
+      message('Caught a warning!')
+      print(w)
+    }
+  )    
+}
+test_list <- list(iris, mtcars, cars)
+
+summary_list(iris)
+summary_list(test_list)
+summary_list("sdf")
+```
+
+Код `summary(list(iris, mtcars))`, примененный к объекту `list` выдает информацию в разрезе основных элементов (т.е. количество переменных, тип элементов каждого листа).
+
+
+
+
+
