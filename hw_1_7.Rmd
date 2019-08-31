@@ -10,7 +10,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(datasets)
 
-include (swiss)
+summary(swiss)
+
+pie_chart(swiss)
+
+pie(swiss$Catholic) # так себе график
+
+
 
 
 ```
