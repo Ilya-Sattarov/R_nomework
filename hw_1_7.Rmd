@@ -1,29 +1,131 @@
 ---
 title: "Markdown practice"
-author: "Лапуцкая Оксана"
-date: '5 августа 2019 г '
-output: html_document
+author: "Илья Саттаров"
+date: '31 августа 2019 г '
+output:
+  html_document: default
+  pdf_document: default
+---
+title: "Swiss dataset using R Markdown"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+## Практика R Markdown
+
+Для примера выбран набор данных `swiss`, содержащий социально-экономические показатели `r nrow(swiss)` франкоговорящих провинций Швейцарии 1888 года.
+
+Датасет содержит `r length(swiss)` переменных:
+
+1. **Fertility** - фертильность
+2. **Agriculture** - доля мужчин вовлеченных в сельское хозяйство   
+3. **Examination** - доля новобранцев получивших наивысшую оценку на сборах
+4. **Education** - доля новобранцев с начальным образованием
+5. **Catholic** - доля католиков в провинции
+6. **Infant.Mortality** - детская смертность (доля младенцев не доживших до 1 года)
+
+Описательная статистика набора данных `swiss`:
+
+
+```{r}
 
 library(datasets)
 
 summary(swiss)
 
-pie_chart(swiss)
-
-pie(swiss$Catholic) # так себе график
+```
 
 
+```{r}
+
+boxplot(swiss)
+
+```
+
+
+Гистограмма распределения _католиков_ и _протестантов_ (это основные религиозные группы, т.е. там где доля католиков 90 %, доля протестантов - 10 % и наоборот).
+
+```{r}
+
+hist(swiss$Catholic, breaks = 5, labels = TRUE, ylim = c(0,30), main = paste("Гистограмма религиозного распределения" ), xlab = paste("Доля католиков в населении"), ylab = paste("Количество провинций"))
+
+```
+
+Франкоговорящее население довольно четко разделено по религиозному признаку: в 16 провинциях преобладают *католики*, в 26 провинциях - *протестанты*, 5 провинций - со смешанным населением.
+
+
+
+
+
+С помощью функции `pairs` строим матрицу диаграмм рассеяния для набора данных `swiss`
+
+```{r}
+
+pairs(swiss, panel = panel.smooth, main = "swiss data")
+
+```
+
+
+
+**Рисунок 1. Карта Швейцарии с разделением по преобладающему языку.**
+
+```{r, out.width = 600}
+
+library(knitr)
+
+knitr::include_graphics("https://smw.ch/en/resource/jf/journal/file/view/article/smw/en/smw.2011.13218/c8b75f0a0014f9999d57d92d0b46edfb879517b9/smw_2011_13218_fig_01_conv.jpg/")
 
 
 ```
 
-## R Markdown
+Современное распределение Швейцарии на 4 языковые группы: <span style="color:green">**зеленый**</span> - немцкоговорящие регионы / <span style="color:red">**красный**</span> - франкоговорящие / <span style="color:blue">**голубой**</span> - италоговорящие / <span style="color:brown">**коричневый**</span> - гризоны (использующие романшский язык)
 
-1. Выбираем датасет для анализа из пакета datasets. Смотрим, что он представляет собой (summary,str), строим основные графики (pie-chart,  bar chart, boxplot) c помощью plot или функций из пакета ggplot2, иллюстрирующие то, как распределены данные. 
+
+Учитывая, что набор данных достаточно, создадим простую формулу с помощью LaTeX
+
+```{r}
+
+mod1 <- lm(formula = Fertility ~ Agriculture + Education + Catholic
++ Infant.Mortality, data = swiss)
+
+mod1$coefficients
+
+```
+
+
+$$\hat{Fertility}_i = 62.10 - 0.13*Agriculture_i - 0.98 * Education_i + 0.125 * Catholic_i + 1.08*Mortality_i$$
+
+
+
+
+------
+
+Подробное описание набора данных: [Swiss Dataset](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/swiss.html)
+
+Дополнительная статистика: [Switzerland Socio-Economic Variables, 1870-1930](https://opr.princeton.edu/archive/pefp/switz.aspx)
+
+------
+
+Примеры таблиц с данными `swiss`:
+
+
+```{r, out.width=620}
+library(DT)
+
+##DT
+DT::datatable(head(swiss,47))
+
+
+##datatable
+knitr::kable(head(swiss,15))
+
+
+```
+
+
+## Задание
+
+
+1. Выбираем датасет для анализа из пакета datasets. Смотрим, что он представляет собой (summary,str), строим основные графики (pie-chart,  bar chart, boxplot) c помощью plot или функций из пакета ggplot2, иллюстрирующие то, как распределены данные.
 2. Применяем форматирование текста, добавляем ссылку на описание данных из R Documentation
 3. Вставляем изображение - фото социологов, собравших этот датасет, или любую другую картинку по теме
 4. Гуглим исследование по названию из References и смотрим формулы, которые использовали авторы. Вставляем их в документ с помощью LaTeX
